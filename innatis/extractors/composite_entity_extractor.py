@@ -67,6 +67,7 @@ class CompositeEntityExtractor(EntityExtractor):
         # type: (Message, **Any) -> None
         entities = message.get("entities", [])[:]
         self.split_composite_entities(entities)
+        self.convert_non_composite_entities(entities)
         message.set("entities", entities, add_to_output=True)
 
     def persist(self, model_dir):
@@ -263,6 +264,16 @@ class CompositeEntityExtractor(EntityExtractor):
 
         entity["value"] = broken_entity
         self.add_processor_name(entity)
+
+    def convert_non_composite_entities(self, entities):
+        # Add fuzzy matching here
+        lookup_table = self.composite_entities['lookup_tables']
+        for each_entity in entities:
+            entity = each_entity["entity"]
+            entity_value = each_entity["value"]
+            if entity in lookup_table and entity_value in lookup_table[entity]:
+                each_entity["value"] = lookup_table[entity][entity_value]
+                self.add_processor_name(each_entity)
 
     def split_composite_entities(self, entities):
         for each_entity in entities:
