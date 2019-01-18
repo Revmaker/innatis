@@ -27,6 +27,7 @@ from rasa_nlu.training_data import Message, TrainingData
 from rasa_nlu.utils import write_json_to_file
 
 from innatis.extractors.composite_data_extractor import CompositeDataExtractor
+from fuzzywuzzy import process
 
 from word2number import w2n
 
@@ -268,12 +269,19 @@ class CompositeEntityExtractor(EntityExtractor):
     def convert_non_composite_entities(self, entities):
         # Add fuzzy matching here
         lookup_table = self.composite_entities['lookup_tables']
-        for each_entity in entities:
-            entity = each_entity["entity"]
-            entity_value = each_entity["value"]
-            if entity in lookup_table and entity_value in lookup_table[entity]:
-                each_entity["value"] = lookup_table[entity][entity_value]
-                self.add_processor_name(each_entity)
+        for entity in entities:
+            entity_name = entity["entity"]
+            entity_value = entity["value"]
+            fuzzy_matched_value = process.extractOne(entity_value, lookup_table.keys(), score_cutoff=90)
+            if entity_name in lookup_table and fuzzy_matched_value:
+                entity["value"] = lookup_table[entity_name][fuzzy_matched_value[0]]
+                self.add_processor_name(entity)
+
+
+        # for entity in entities:
+        #     elif entity_value.lower() in self.synonyms:
+        #         entity["value"] = self.synonyms[entity_value.lower()]
+        #         self.add_processor_name(entity)
 
     def split_composite_entities(self, entities):
         for each_entity in entities:
