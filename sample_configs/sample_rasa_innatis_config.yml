@@ -5,6 +5,8 @@ pipeline:
 - name: "tokenizer_spacy"
 - name: "ner_crf"
 - name: "innatis.extractors.CompositeEntityExtractor"
+  fuzzy_matching: true
+  fuzzy_threshold: 90
 - name: "tokenizer_whitespace"
 - name: "intent_featurizer_count_vectors"
 - name: "innatis.featurizers.UniversalSentenceEncoderFeaturizer"
