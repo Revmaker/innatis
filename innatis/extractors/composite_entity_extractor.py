@@ -45,6 +45,10 @@ class CompositeEntityExtractor(EntityExtractor):
     name = "composite_entity_extractor"
     requires = ["entities"]
     provides = ["composite_entities"]
+    defaults = {
+        "fuzzy_matching": False,
+        "fuzzy_threshold": 90
+    }
 
     def __init__(self, component_config=None, composite_entities=None):
         # type: (Optional[Dict[Text, Text]]) -> None
@@ -275,17 +279,19 @@ class CompositeEntityExtractor(EntityExtractor):
             if not isinstance(entity_value, str):
                 continue
 
-            if entity_name in lookup_table:
-                fuzzy_matched_value = process.extractOne(entity_value, lookup_table[entity_name].keys(), score_cutoff=90)
-                if fuzzy_matched_value:
-                    entity["value"] = lookup_table[entity_name][fuzzy_matched_value[0]]
-                    self.add_processor_name(entity)
-
-
-        # for entity in entities:
-        #     elif entity_value.lower() in self.synonyms:
-        #         entity["value"] = self.synonyms[entity_value.lower()]
-        #         self.add_processor_name(entity)
+            if self.component_config["fuzzy_matching"]:
+                if entity_name.lower() in lookup_table:
+                    fuzzy_matched_value = process.extractOne(
+                        entity_value,
+                        lookup_table[entity_name].keys(),
+                        score_cutoff=self.component_config["fuzzy_threshold"]
+                    )
+                    if fuzzy_matched_value:
+                        entity["value"] = lookup_table[entity_name.lower()][fuzzy_matched_value[0]]
+                        self.add_processor_name(entity)
+            elif entity_name.lower() in lookup_table and entity_value.lower() in lookup_table[entity_name.lower()]:
+                entity["value"] = lookup_table[entity_name.lower()][entity_value.lower()]
+                self.add_processor_name(entity)
 
     def split_composite_entities(self, entities):
         for each_entity in entities:

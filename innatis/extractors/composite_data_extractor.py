@@ -84,7 +84,7 @@ class CompositeDataExtractor():
     def _extract_lookup_tables(self, examples):
         """Extract the lookup table from the entity synonyms"""
         return {
-            synonym: spec["value"] for spec in examples for synonym in spec["synonyms"] if "@" not in synonym
+            synonym.lower(): spec["value"].lower() for spec in examples for synonym in spec["synonyms"] if "@" not in synonym
         }
 
     def _flatten(self, list_of_lists):
