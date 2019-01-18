@@ -128,7 +128,6 @@ class CompositeEntityExtractor(EntityExtractor):
     def break_on_lookup_tables(self, each_lookup,
                                child_name,
                                broad_value):
-        # fuzzy matching should go here
         for lookup_entry, alias in each_lookup.items():
             find_index = broad_value.find(lookup_entry.lower())
             if(find_index > -1):
@@ -271,7 +270,6 @@ class CompositeEntityExtractor(EntityExtractor):
         self.add_processor_name(entity)
 
     def convert_non_composite_entities(self, entities):
-        # Add fuzzy matching here
         lookup_table = self.composite_entities['lookup_tables']
         synonyms = {k: v for i in lookup_table.values() for k, v in i.items()}
         for entity in entities:
