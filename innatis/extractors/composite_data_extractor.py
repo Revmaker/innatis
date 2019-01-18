@@ -26,7 +26,7 @@ RASA_NLU = "rasa_nlu"
 class CompositeDataExtractor():
 
     def get_data(self, language):
-        lookup_tables = []
+        lookup_tables = {}
         composite_entities = []
 
         cmdline_args = create_argument_parser().parse_args()
@@ -39,9 +39,9 @@ class CompositeDataExtractor():
                 entity = file_content['name']
                 dialogflowReader = DialogflowReader()
                 examples_js = dialogflowReader._read_examples_js(fn=file, language=language, fformat=fformat)
-                lookup_table = self._extract_lookup_tables(entity, examples_js)
-                if(lookup_table):
-                    lookup_tables.append(lookup_table)
+                lookup_table = self._extract_lookup_tables(examples_js)
+                if lookup_table:
+                    lookup_tables[entity] = lookup_table
                 composite_entity = self._extract_composite_entities(
                             entity,
                             examples_js)
@@ -81,17 +81,10 @@ class CompositeDataExtractor():
                 composite_entities.add(each.split(':')[0])
         return composite_entities
 
-    def _extract_lookup_tables(self, entity, examples):
+    def _extract_lookup_tables(self, examples):
         """Extract the lookup table from the entity synonyms"""
-        lookup_tables = []
-        synonyms = [e["synonyms"] for e in examples if "synonyms" in e]
-        synonyms = self._flatten(synonyms)
-        lookup_tables = [synonym for synonym in synonyms if "@" not in synonym]
-        if len(lookup_tables) == 0:
-            return False
         return {
-            'name': entity,
-            'elements': lookup_tables
+            synonym: spec["value"] for spec in examples for synonym in spec["synonyms"] if "@" not in synonym
         }
 
     def _flatten(self, list_of_lists):

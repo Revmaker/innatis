@@ -60,7 +60,7 @@ class CompositeEntityExtractor(EntityExtractor):
         compositeDataExtractor = CompositeDataExtractor()
         lookup_tables, composite_entities = compositeDataExtractor.get_data(
             language=cfg.language)
-        self.add_lookup_tables(lookup_tables)
+        self.composite_entities['lookup_tables'] = lookup_tables
         self.composite_entities['composite_entities'] = composite_entities
 
     def process(self, message, **kwargs):
@@ -122,24 +122,25 @@ class CompositeEntityExtractor(EntityExtractor):
     def break_on_lookup_tables(self, each_lookup,
                                child_name,
                                broad_value):
-        for lookup_entry in each_lookup['elements']:
+        # fuzzy matching should go here
+        for lookup_entry, alias in each_lookup.items():
             find_index = broad_value.find(lookup_entry.lower())
             if(find_index > -1):
                 return {
-                    child_name: lookup_entry
+                    child_name: alias
                 }
         return {}
 
     def split_by_lookup_tables(self, composite_child, broad_value):
         broken_entity = {}
         child_name = composite_child[1:]
-        for each_lookup in self.composite_entities['lookup_tables']:
-            if(each_lookup['name'] == child_name):
-                broken_entity = self.merge_two_dicts(
-                    broken_entity,
-                    self.break_on_lookup_tables(each_lookup,
-                                                child_name,
-                                                broad_value))
+
+        if child_name in self.composite_entities['lookup_tables']:
+            broken_entity = self.merge_two_dicts(
+                broken_entity,
+                self.break_on_lookup_tables(self.composite_entities['lookup_tables'][child_name],
+                                            child_name,
+                                            broad_value))
         return broken_entity
 
     def find_number_in_words(self, word):
@@ -270,10 +271,3 @@ class CompositeEntityExtractor(EntityExtractor):
             for composite_entry in ces:
                 if(composite_entry['name'] == entity):
                     self.split_composite_entity(composite_entry, each_entity)
-
-    def add_lookup_tables(self, lookup_tables):
-        """Need to sort by length so that we get the broadest entry first"""
-        for lookup in lookup_tables:
-            if('elements' in lookup):
-                lookup['elements'].sort(key=len, reverse=True)
-                self.composite_entities['lookup_tables'].append(lookup)
