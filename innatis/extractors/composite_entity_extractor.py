@@ -272,10 +272,14 @@ class CompositeEntityExtractor(EntityExtractor):
         for entity in entities:
             entity_name = entity["entity"]
             entity_value = entity["value"]
-            fuzzy_matched_value = process.extractOne(entity_value, lookup_table.keys(), score_cutoff=90)
-            if entity_name in lookup_table and fuzzy_matched_value:
-                entity["value"] = lookup_table[entity_name][fuzzy_matched_value[0]]
-                self.add_processor_name(entity)
+            if not isinstance(entity_value, str):
+                continue
+
+            if entity_name in lookup_table:
+                fuzzy_matched_value = process.extractOne(entity_value, lookup_table[entity_name].keys(), score_cutoff=90)
+                if fuzzy_matched_value:
+                    entity["value"] = lookup_table[entity_name][fuzzy_matched_value[0]]
+                    self.add_processor_name(entity)
 
 
         # for entity in entities:
