@@ -273,6 +273,7 @@ class CompositeEntityExtractor(EntityExtractor):
     def convert_non_composite_entities(self, entities):
         # Add fuzzy matching here
         lookup_table = self.composite_entities['lookup_tables']
+        synonyms = {k: v for i in lookup_table.values() for k, v in i.items()}
         for entity in entities:
             entity_name = entity["entity"]
             entity_value = entity["value"]
@@ -280,15 +281,14 @@ class CompositeEntityExtractor(EntityExtractor):
                 continue
 
             if self.component_config["fuzzy_matching"]:
-                if entity_name.lower() in lookup_table:
-                    fuzzy_matched_value = process.extractOne(
-                        entity_value,
-                        lookup_table[entity_name].keys(),
-                        score_cutoff=self.component_config["fuzzy_threshold"]
-                    )
-                    if fuzzy_matched_value:
-                        entity["value"] = lookup_table[entity_name.lower()][fuzzy_matched_value[0]]
-                        self.add_processor_name(entity)
+                fuzzy_matched_value = process.extractOne(
+                    entity_value,
+                    synonyms.keys(),
+                    score_cutoff=self.component_config["fuzzy_threshold"]
+                )
+                if fuzzy_matched_value:
+                    entity["value"] = synonyms[fuzzy_matched_value[0]]
+                    self.add_processor_name(entity)
             elif entity_name.lower() in lookup_table and entity_value.lower() in lookup_table[entity_name.lower()]:
                 entity["value"] = lookup_table[entity_name.lower()][entity_value.lower()]
                 self.add_processor_name(entity)
