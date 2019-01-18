@@ -8,6 +8,8 @@ setup(
                     'word2number',
                     'rasa_nlu==0.13.8',
                     'tensorflow-hub',
+                    'fuzzywuzzy==0.17.0',
+                    'python-Levenshtein==0.12.0',
                     'spacy'],
   packages=['innatis', 'innatis.featurizers', 'innatis.extractors'],
   version='0.3.0',
