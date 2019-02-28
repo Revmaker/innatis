@@ -11,6 +11,7 @@ https://scalableminds.com/#contact-us
 
 from rasa_nlu.featurizers import Featurizer
 
+import os
 import tensorflow_hub as hub
 import tensorflow as tf
 
@@ -31,6 +32,9 @@ class UniversalSentenceEncoderFeaturizer(Featurizer):
 
         super(UniversalSentenceEncoderFeaturizer,
               self).__init__(component_config)
+
+        # Set the tfhub cache directory in the case it changes
+        os.environ["TFHUB_CACHE_DIR"] = '/tmp/tfhub'
 
         # Load the TensorFlow Hub Module with pre-trained weights
         sentence_encoder = hub.Module(self.TFHUB_URL)
