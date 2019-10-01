@@ -1,4 +1,14 @@
+import os
+
 from setuptools import setup
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
+
+with open(os.path.join(here, "VERSION"), encoding="utf-8") as f:
+    __version__ = f.read().strip()
 
 install_requires = [
     "scikit-learn==0.20.2",
@@ -15,14 +25,33 @@ install_requires = [
 setup(
     name='innatis',
     install_requires=install_requires,
-    packages=['innatis', 'innatis.classifiers', 'innatis.classifiers.bert',
-              'innatis.featurizers', 'innatis.extractors'],
-    version='0.6.0',
+    packages=[
+        'innatis',
+        'innatis.classifiers',
+        'innatis.classifiers.bert',
+        'innatis.featurizers',
+        'innatis.extractors'
+    ],
+    version=__version__,
     description='A library of useful custom Rasa components',
+    license='Apache License 2.0',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author='CarLabs',
     author_email='blake@carlabs.com',
     url='https://github.com/Revmaker/innatis',
-    download_url='https://github.com/Revmaker/innatis/tarball/0.1',
     keywords=['rasa', 'nlu', 'components'],
-    classifiers=[]
+    python_requires=">=3.5",
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: Apache Software License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Text Processing :: Linguistic",
+    ]
 )
