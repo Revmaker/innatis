@@ -4,7 +4,7 @@ install_requires = [
     "scikit-learn==0.20.2",
     "scipy==1.2.0",
     "sklearn-crfsuite==0.3.6",
-    "tensorflow==1.12.2",
+    "tensorflow==2.5.3",
     "word2number==1.1",
     "rasa_nlu==0.14.3",
     "tensorflow-hub==0.2.0",
